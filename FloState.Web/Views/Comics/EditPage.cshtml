@@ -1,0 +1,7 @@
+@model FloState.Web.Models.ComicPage
+@{ ViewData["Title"] = $"Page {Model.Number}"; }
+<div class="context-banner"><a asp-action="Details" asp-route-id="@Model.Chapter.ComicId">← @Model.Chapter.Comic.Title / Chapter @Model.Chapter.Number</a><span>Page @Model.Number</span></div>
+@Html.AntiForgeryToken()
+<script id="page-config" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(new { imageUrl = Url.Action("PageImage", "Comics", new { id = Model.Id }), fileName = Model.OriginalFileName, draft = Model.DraftJson, saveUrl = Url.Action("SaveDraft", "Comics", new { id = Model.Id }), analyzeUrl = Url.Action("AnalyzePage", "Comics", new { id = Model.Id }), aiConfigured = ViewData["AiConfigured"], aiModel = ViewData["AiModel"] }))</script>
+@await Html.PartialAsync("_Editor")
+@section Scripts { <script src="~/js/editor.js" asp-append-version="true"></script> }

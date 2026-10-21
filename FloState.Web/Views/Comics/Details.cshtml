@@ -1,0 +1,91 @@
+@model FloState.Web.Models.Comic
+@{
+  ViewData["Title"] = Model.Title;
+}
+<div class="library" id="comic-details" data-auto-analyze="@ViewData["AnalyzeChapter"]">
+  <a asp-action="Index" class="back-link">← Library</a>
+  <div class="project-hero mt-5 rounded-3xl border border-slate-800 p-6 sm:p-9">
+    <div class="flex flex-wrap items-start justify-between gap-5">
+      <div class="max-w-2xl">
+        <div class="eyebrow">COMIC PROJECT</div>
+        <h1 class="mt-3 text-4xl font-bold tracking-tight text-white sm:text-5xl">@Model.Title</h1>
+        <p class="mt-3 text-base text-slate-300">@Model.SourceLanguage <span class="text-teal-300">→</span> @Model.TargetLanguage</p>
+        @if (!string.IsNullOrWhiteSpace(Model.Description))
+        {
+          <p class="mt-4 text-sm leading-6 text-slate-400">@Model.Description</p>
+        }
+      </div>
+      <a asp-action="Read" asp-route-id="@Model.Id" class="button-link primary">Read all chapters →</a>
+    </div>
+    <div class="mt-8 flex flex-wrap gap-3 text-xs font-semibold uppercase tracking-wider text-slate-400"><span class="stat-pill">@Model.Chapters.Count chapters</span><span class="stat-pill">@Model.Chapters.Sum(chapter => chapter.Pages.Count) pages</span><span class="stat-pill">@Model.ContextEntries.Count context notes</span></div>
+  </div>
+  @if (TempData["Error"] is string error)
+  {
+    <div class="notice mt-5" role="alert">@error</div>
+  }
+  <div class="detail-grid mt-8">
+    <section class="min-w-0" aria-labelledby="chapters-heading">
+      <div class="section-top"><div><div class="eyebrow">WORKFLOW</div><h2 id="chapters-heading" class="mt-2 text-2xl font-semibold text-white">Chapters & pages</h2></div><p>Upload a chapter in one batch, then review translations page by page.</p></div>
+      @if (Model.Chapters.Count == 0)
+      {
+        <div class="empty-panel mt-5">No chapters yet. Add the first chapter below.</div>
+      }
+      @foreach (var chapter in Model.Chapters)
+      {
+        <article class="card chapter mt-5" data-chapter-id="@chapter.Id">
+          <div class="mb-5 flex flex-wrap items-start justify-between gap-3"><div><div class="eyebrow">CHAPTER @chapter.Number.ToString("00")</div><h3 class="mt-2 text-xl font-semibold text-white">@chapter.Title</h3><p class="mt-1 text-sm text-slate-400">@chapter.Pages.Count @(chapter.Pages.Count == 1 ? "page" : "pages") in reading order</p></div><a asp-action="Read" asp-route-id="@Model.Id" asp-fragment="chapter-@chapter.Id" class="subtle-link">Open in reader →</a></div>
+          <form asp-action="UploadPages" method="post" enctype="multipart/form-data" class="upload-form rounded-xl border border-dashed border-slate-600 bg-slate-950/40 p-4">
+            <input type="hidden" name="chapterId" value="@chapter.Id" />
+            <label class="block text-sm font-semibold text-slate-200">Add pages to this chapter</label>
+            <p class="mt-1 text-xs leading-5 text-slate-400">Select up to 50 PNG, JPG, or WebP images, under 190 MB total. Filenames set page order: page 2 comes before page 10. Each image can be up to 20 MB; AI analysis requires images under 15 MB.</p>
+            <input type="file" name="images" accept="image/png,image/jpeg,image/webp" multiple required class="mt-3 block w-full text-sm text-slate-300" />
+            <p class="file-order mt-2 text-xs text-slate-400" aria-live="polite">No images selected.</p>
+            <div class="mt-4 flex flex-wrap gap-2"><button type="submit" name="analyzeAfterUpload" value="true" class="primary">Upload & translate</button><button type="submit" name="analyzeAfterUpload" value="false">Upload only</button></div>
+          </form>
+          <div class="chapter-actions mt-5 flex flex-wrap items-center gap-3"><button type="button" class="analyze-chapter" disabled="@(chapter.Pages.Count == 0)">Translate remaining pages</button><button type="button" class="cancel-chapter" hidden>Stop</button><span class="chapter-status text-sm text-slate-400" role="status">@(chapter.Pages.Count == 0 ? "Upload pages to begin." : "Ready to analyze unsaved pages.")</span></div>
+          <progress class="chapter-progress mt-3 w-full" max="1" value="0" hidden></progress>
+          @if (chapter.Pages.Count > 0)
+          {
+            <div class="page-grid mt-5">
+              @foreach (var comicPage in chapter.Pages)
+              {
+                <a asp-action="EditPage" asp-route-id="@comicPage.Id"
+                   data-analyze-url="@Url.Action("AnalyzePage", new { id = comicPage.Id })"
+                   data-save-url="@Url.Action("SaveDraft", new { id = comicPage.Id })"
+                   data-image-url="@Url.Action("PageImage", new { id = comicPage.Id })"
+                   data-has-draft="@(!string.IsNullOrWhiteSpace(comicPage.DraftJson) ? "true" : "false")">
+                  <img src="@Url.Action("PageImage", new { id = comicPage.Id })" alt="Page @comicPage.Number thumbnail" loading="lazy" />
+                  <span class="page-title">Page @comicPage.Number.ToString("00")</span>
+                  <span class="page-state">@(!string.IsNullOrWhiteSpace(comicPage.DraftJson) ? "Draft saved" : "Needs translation")</span>
+                </a>
+              }
+            </div>
+          }
+        </article>
+      }
+      <form asp-action="AddChapter" method="post" class="card stack mt-5"><div class="eyebrow">ORGANIZE</div><h3 class="text-xl font-semibold text-white">Add a chapter</h3><input type="hidden" name="comicId" value="@Model.Id" /><div class="grid"><label>Chapter number<input type="number" name="number" min="1" required value="@(Model.Chapters.Count + 1)" /></label><label>Chapter title<input name="title" maxlength="160" required /></label></div><button class="primary">Add chapter</button></form>
+    </section>
+    <section class="min-w-0" aria-labelledby="context-heading">
+      <div class="section-top"><div><div class="eyebrow">MEMORY</div><h2 id="context-heading" class="mt-2 text-2xl font-semibold text-white">Translation context</h2></div><p>Names, nicknames, and recurring terms carry into later chapters.</p></div>
+      <div class="card stack mt-5"><div class="eyebrow">OPTIONAL RESEARCH</div><h3 class="text-lg font-semibold text-white">Source material</h3><p class="text-sm leading-6 text-slate-400">Search for a matching work and review cited sources before adding outside context.</p><button type="button" id="research-comic" data-url="@Url.Action("ResearchComic", new { id = Model.Id })">Research with AI</button><div id="research-status" class="text-sm text-slate-400" role="status"></div><div id="research-result" hidden><p id="research-summary" class="whitespace-pre-wrap text-sm text-slate-300"></p><div id="research-sources" class="space-y-2 text-sm"></div><button type="button" id="accept-research" data-url="@Url.Action("AcceptResearch", new { id = Model.Id })">Use this context</button></div></div>
+      @foreach (var entry in Model.ContextEntries)
+      {
+        var sourceMarker = entry.Kind == "Reference" ? entry.Notes?.LastIndexOf(" Source: ") ?? -1 : -1;
+        var sourceUrl = sourceMarker >= 0 ? entry.Notes![(sourceMarker + 9)..] : null;
+        <div class="card context-entry mt-3">
+          <small>@entry.Kind</small>
+          <h3 class="mt-2 font-semibold text-white">@entry.Term <span class="text-teal-300">→</span> @entry.Translation</h3>
+          <p class="mt-2 text-sm leading-6 text-slate-400">
+            @(sourceMarker >= 0 ? entry.Notes![..sourceMarker] : entry.Notes)
+            @if (Uri.TryCreate(sourceUrl, UriKind.Absolute, out var sourceUri) && sourceUri.Scheme == Uri.UriSchemeHttps)
+            {
+              <a href="@sourceUri" target="_blank" rel="noopener noreferrer">Source ↗</a>
+            }
+          </p>
+        </div>
+      }
+      <form asp-action="AddContext" method="post" class="card stack mt-5"><div class="eyebrow">CORRECTIONS</div><h3 class="text-lg font-semibold text-white">Add or correct a note</h3><input type="hidden" name="comicId" value="@Model.Id" /><label>Type<select name="kind"><option>Character</option><option>Nickname</option><option>Place</option><option>Term</option><option>Style</option></select></label><label>Original term<input name="term" required maxlength="160" /></label><label>Preferred translation<input name="translation" required maxlength="160" /></label><label>Notes<textarea name="notes" rows="3" maxlength="1000" placeholder="Context, relationships, or usage rules"></textarea></label><button>Save note</button></form>
+    </section>
+  </div>
+</div>
+@section Scripts { <script src="~/js/comic-details.js" asp-append-version="true"></script> }

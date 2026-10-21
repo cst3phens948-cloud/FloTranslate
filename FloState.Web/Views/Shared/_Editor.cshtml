@@ -1,0 +1,28 @@
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="eyebrow">TRANSLATION WORKSPACE</div><h1>Make every word fit.</h1><p class="intro">Load a page, mark each bubble’s inner area, and set its translated lettering. Your original image stays intact.</p>
+    <label for="imageFile">Page image</label><input id="imageFile" type="file" accept="image/png,image/jpeg,image/webp" />
+    <div class="row"><button id="addRegion" class="primary" disabled>Add bubble</button><button id="deleteRegion" disabled>Delete</button></div><p id="instruction" class="hint">Choose an image to begin.</p>
+    <div class="heading"><h2>Bubbles</h2><span id="bubbleCount">0</span></div><div id="bubbleList" class="bubble-list"><p class="hint">No bubbles yet.</p></div>
+    <section id="bubbleForm" hidden><h2>Selected bubble</h2>
+      <h3>1. Remove original lettering</h3>
+      <label>Whiteout method<select id="eraseMode"><option value="auto">Detect white bubble interior</option><option value="manual">Manual whiteout shape</option></select></label>
+      <label>Manual whiteout shape<select id="regionShape"><option value="ellipse">Oval / circle</option><option value="rectangle">Rectangle</option></select></label>
+      <button type="button" id="editErase">Edit whiteout area</button>
+      <div class="grid"><label>Brush size<input id="brushSize" type="number" min="2" max="80" value="16" /></label><div><button type="button" id="whiteoutBrush">Brush remaining letters</button><button type="button" id="undoBrush">Undo brush stroke</button></div></div>
+      <h3>2. Fit translated lettering</h3>
+      <label>Text placement<select id="textMode"><option value="auto">Fit inside detected bubble</option><option value="manual">Use blue area manually</option></select></label>
+      <label>Source text<textarea id="sourceText" rows="2" placeholder="Original dialogue"></textarea></label>
+      <label>Translated text<textarea id="translatedText" rows="4" placeholder="Replacement dialogue"></textarea></label>
+      <label>Paint color<select id="fillMode"><option value="auto">Match original bubble color</option><option value="manual">Use selected color</option></select></label>
+      <div class="grid"><label>Selected paint color<input id="fillColor" type="color" value="#ffffff" /></label><label>Text color<input id="textColor" type="color" value="#111111" /></label></div>
+      <div class="grid"><label>Max font size (auto-fit)<input id="fontSize" type="number" min="6" max="160" value="60" /></label><label>Text padding<input id="padding" type="number" min="0" max="100" value="5" /></label></div>
+      <p id="textFitStatus" class="hint" role="status"></p>
+      <label>Font family<select id="fontFamily"><option value="Comic Sans MS">Comic Sans MS</option><option value="Arial">Arial</option><option value="Georgia">Georgia</option><option value="Verdana">Verdana</option></select></label>
+      <label class="check"><input id="boldText" type="checkbox" checked /> Bold</label><label class="check"><input id="uncertain" type="checkbox" /> Needs review</label><p class="hint">Blue marks the text area. Orange marks the manual whiteout area. Drag or resize them separately. Automatic whiteout follows connected white pixels inside the bubble.</p>
+    </section>
+    <label class="check"><input id="previewWhiteout" type="checkbox" /> Preview whiteout only</label>
+    <div class="export"><button id="analyzePage" hidden disabled>Analyze with AI</button><button id="savePage" hidden disabled>Save page</button><button id="exportPng" disabled>Export PNG</button><button id="saveProject" disabled>Save project</button><label class="import-button">Open project<input id="openProject" type="file" accept="application/json,.json" hidden /></label></div>
+  </aside>
+  <section class="workspace"><div class="toolbar"><span id="pageInfo">No image loaded</span><div><button id="zoomOut" disabled>−</button><span id="zoomValue">100%</span><button id="zoomIn" disabled>+</button></div></div><div id="canvasViewport" class="viewport"><div id="canvasStage" class="stage"><canvas id="pageCanvas"></canvas><canvas id="overlayCanvas"></canvas></div><div id="dropPrompt" class="drop-prompt"><strong>Your page goes here</strong><span>Choose a PNG, JPG, or WebP image on the left.</span></div></div><div class="workspace-footer">Edits are rendered in your browser. Save a project file to continue later.</div></section>
+</div>

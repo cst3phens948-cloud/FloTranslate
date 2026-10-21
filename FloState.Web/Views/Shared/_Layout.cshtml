@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <title>@ViewData["Title"] · FloState</title>
+  <link rel="stylesheet" href="~/css/tailwind.css" asp-append-version="true" />
+  <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body class="bg-ink-950 text-slate-100 antialiased">
+  <header class="site-header sticky top-0 z-50 border-b border-slate-800/80 bg-ink-950/95 backdrop-blur-xl">
+    <a asp-controller="Comics" asp-action="Index" class="brand flex items-center gap-2.5" aria-label="FloState Studio home"><span class="brand-mark">F</span><span>FloState <em>Studio</em></span></a>
+    <nav aria-label="Main navigation" class="flex items-center gap-1 sm:gap-2"><a asp-controller="Comics" asp-action="Index">Library</a><a asp-controller="Settings" asp-action="Index">AI settings</a></nav>
+  </header>
+  <main>@RenderBody()</main>
+  <script src="~/js/site.js" asp-append-version="true"></script>
+  @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

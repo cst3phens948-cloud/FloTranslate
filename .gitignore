@@ -1,0 +1,9 @@
+.dotnet/
+.templateengine/
+**/bin/
+**/obj/
+**/artifacts/
+.vs/
+**/App_Data/
+node_modules/
+*.csproj.user

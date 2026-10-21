@@ -1,0 +1,6 @@
+@model FloState.Web.Controllers.OpenAiSettingsStatus
+@{ ViewData["Title"] = "AI settings"; }
+<div class="library narrow"><a asp-controller="Comics" asp-action="Index">← Library</a><div class="eyebrow">SETTINGS</div><h1>OpenAI connection</h1>
+<div class="card stack"><h2>Current status</h2><p><strong>API key:</strong> @Model.KeyStatus</p><p><strong>Model:</strong> @Model.Model</p><p>The key is never displayed here or sent to the browser. AI analysis becomes available in the page editor once a valid key is configured.</p></div>
+<div class="card stack"><h2>Add a key for local development</h2><p>In PowerShell from the project root, run this one command:</p><pre>.\scripts\Set-OpenAiKey.ps1</pre><p>Wait for the prompt, paste the complete key, then press Enter. The script checks it before saving. Restart the app after setting it. User Secrets live outside this repository in your operating-system user profile. They are intended for local development and are not encrypted; protect your computer account. For a deployed site, inject <code>OpenAI__ApiKey</code> from your hosting platform’s secret store.</p><p>You can change the model in <code>appsettings.json</code> under <code>OpenAI:Model</code>. The default is <code>gpt-6-luna</code>.</p></div>
+</div>

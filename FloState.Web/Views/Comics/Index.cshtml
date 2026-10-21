@@ -1,0 +1,47 @@
+@model List<FloState.Web.Models.Comic>
+@{ ViewData["Title"] = "Comics"; }
+<div class="library">
+  <div class="library-top">
+    <div>
+      <div class="eyebrow">YOUR WORKSPACE</div>
+      <h1 class="mt-2">Comic library</h1>
+      <p class="intro mt-2">Keep chapters, artwork, translations, and story context together.</p>
+    </div>
+    <a class="button-link primary" asp-action="Create">New comic +</a>
+  </div>
+
+  @if (Model.Count == 0)
+  {
+    <div class="empty-panel">No comics yet. Create one to start a translation project.</div>
+  }
+  else
+  {
+    <div class="comic-grid">
+      @foreach (var comic in Model)
+      {
+        var cover = comic.Chapters.OrderBy(chapter => chapter.Number)
+          .SelectMany(chapter => chapter.Pages.OrderBy(page => page.Number))
+          .FirstOrDefault();
+        <a class="card comic-card" asp-action="Details" asp-route-id="@comic.Id">
+          <div class="comic-cover">
+            @if (cover is not null)
+            {
+              <img src="@Url.Action("PageImage", new { id = cover.Id })" alt="" loading="lazy" />
+            }
+            else
+            {
+              <span aria-hidden="true">@comic.Title.FirstOrDefault().ToString().ToUpperInvariant()</span>
+            }
+          </div>
+          <div class="comic-card-content">
+            <div class="eyebrow">@comic.Chapters.Count @(comic.Chapters.Count == 1 ? "CHAPTER" : "CHAPTERS")</div>
+            <h2>@comic.Title</h2>
+            <p>@comic.SourceLanguage <span class="text-teal-300">→</span> @comic.TargetLanguage</p>
+            <span>Open project →</span>
+          </div>
+        </a>
+      }
+    </div>
+  }
+  <p class="mt-7 text-sm"><a asp-controller="Home" asp-action="Index">Open standalone page editor →</a></p>
+</div>

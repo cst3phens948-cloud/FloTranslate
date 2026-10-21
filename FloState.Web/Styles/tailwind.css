@@ -1,0 +1,11 @@
+@import "tailwindcss";
+@source "../Views";
+@source "../wwwroot/js";
+
+@theme {
+  --font-sans: "Segoe UI", Inter, ui-sans-serif, system-ui, sans-serif;
+  --color-ink-950: #090e17;
+  --color-ink-900: #0d1521;
+  --color-panel: #131f2e;
+  --color-accent: #55d6c2;
+}
